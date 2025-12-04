@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Login</title>
+  <style>
+    :root {
+      --bg: #f2f2f2;
+      --fg: #111;
+      --card: #fff;
+      --accent: #4CAF50;
+      --shadow: rgba(0,0,0,0.2);
+    }
+
+    body.dark {
+      --bg: #1e1e1e;
+      --fg: #eee;
+      --card: #2c2c2c;
+      --accent: #6fe27d;
+      --shadow: rgba(0,0,0,0.6);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      font-family: Arial;
+      color: var(--fg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    .container {
+      width: 330px;
+      background: var(--card);
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 0 15px var(--shadow);
+      animation: pop .4s ease;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    h2 { text-align: center; margin-bottom: 20px; }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-top: 10px;
+      border: 1px solid #aaa;
+      outline: none;
+      transition: .2s;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(0.9); }
+
+    .switch {
+      text-align: center;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 0 5px var(--shadow);
+    }
+
+    .msg { color: red; text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="theme-toggle" onclick="toggleTheme()">Alternar Tema</div>
+
+<div class="container" id="box">
+  <h2 id="title">Login</h2>
+
+  <input type="text" id="user" placeholder="Usuário">
+  <input type="password" id="pass" placeholder="Senha">
+
+  <button onclick="login()" id="btnAction">Entrar</button>
+  
+  <p class="switch" onclick="switchMode()" id="switchText">Criar uma conta</p>
+  
+  <p class="msg" id="msg"></p>
+</div>
+
+<script>
+  let mode = "login";
+
+  function switchMode() {
+    const title = document.getElementById("title");
+    const btn = document.getElementById("btnAction");
+    const txt = document.getElementById("switchText");
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+
+    if (mode === "login") {
+      mode = "register";
+      title.textContent = "Criar Conta";
+      btn.textContent = "Cadastrar";
+      txt.textContent = "Já tenho uma conta";
+    } else {
+      mode = "login";
+      title.textContent = "Login";
+      btn.textContent = "Entrar";
+      txt.textContent = "Criar uma conta";
+    }
+  }
+
+  function login() {
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+    const msg = document.getElementById("msg");
+
+    if (mode === "register") return register();
+
+    let data = JSON.parse(localStorage.getItem("users") || "{}");
+
+    if (!data[user]) {
+      msg.textContent = "Usuário não encontrado.";
+      return;
+    }
+
+    if (data[user] !== pass) {
+      msg.textContent = "Senha incorreta.";
+      return;
+    }
+
+    // Sucesso no login → redireciona para a home page
+    localStorage.setItem("loggedUser", user);
+    window.location.href = "home.html";
+  }
+
+  function register() {
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+    const msg = document.getElementById("msg");
+
+    if (user.length < 3 || pass.length < 3) {
+      msg.textContent = "Use no mínimo 3 caracteres.";
+      return;
+    }
+
+    let data = JSON.parse(localStorage.getItem("users") || "{}");
+
+    if (data[user]) {
+      msg.textContent = "Usuário já existe!";
+      return;
+    }
+
+    data[user] = pass;
+    localStorage.setItem("users", JSON.stringify(data));
+
+    msg.style.color = "green";
+    msg.textContent = "Conta criada com sucesso!";
+    switchMode();
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("dark");
+  }
+</script>
+
+</body>
+</html>
